@@ -39,12 +39,12 @@ app.get('/', (req, res) => {
 // --- FIM DA MUDANÇA ---
 
 // Rota dinâmica para cada "sala"
-app.get('/:room', (req, res) => {
+app.get('/:room(*)', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
 // API: Listar arquivos... (sem mudanças)
-app.get('/api/:room/files', (req, res) => {
+app.get('/api/:room(*)/files', (req, res) => {
   const roomName = req.params.room;
   const uploadPath = path.join(__dirname, 'uploads', roomName);
   
@@ -74,7 +74,7 @@ app.get('/api/:room/files', (req, res) => {
 
 // API: Upload de arquivo... (sem mudanças)
 // API: Upload de arquivo... (COM TRATAMENTO DE ERRO)
-app.post('/api/:room/upload', (req, res, next) => {
+app.post('/api/:room(*)/upload', (req, res, next) => {
   upload.single('file')(req, res, (err) => {
     // Se um erro ocorrer (ex: limite de tamanho ou disco cheio)
     if (err) {
@@ -94,7 +94,7 @@ app.post('/api/:room/upload', (req, res, next) => {
 });
 
 // API: Download de arquivo... (sem mudanças)
-app.get('/api/:room/download/:filename', (req, res) => {
+app.get('/api/:room(*)/download/:filename', (req, res) => {
   const roomName = req.params.room;
   const filename = req.params.filename;
   const filePath = path.join(__dirname, 'uploads', roomName, filename);
@@ -107,7 +107,7 @@ app.get('/api/:room/download/:filename', (req, res) => {
 });
 
 // API: Deletar arquivo... (sem mudanças)
-app.delete('/api/:room/delete/:filename', (req, res) => {
+app.delete('/api/:room(*)/delete/:filename', (req, res) => {
   const roomName = req.params.room;
   const filename = req.params.filename;
   const filePath = path.join(__dirname, 'uploads', roomName, filename);
