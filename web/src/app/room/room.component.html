@@ -59,4 +59,29 @@
     Feito com <i class="fa-solid fa-heart" style="color: #ff6b6b;"></i> por Gabriel Cézar
     <span class="footer-separator">|</span>
     Inspirado no <a href="https://dontpad.com" target="_blank" rel="noopener noreferrer">dontpad.com</a>
+    <a href="#" class="pix-trigger" (click)="openPixModal($event)"> | Apoie este projeto (PIX)</a>
+    <span class="footer-separator"></span>
+    <div *ngIf="isPixModalVisible" class="modal-backdrop" (click)="closePixModal()">
+      <div class="modal" (click)="$event.stopPropagation()">
+
+        <button class="modal-close" (click)="closePixModal()">&times;</button>
+
+        <i class="fa-solid fa-mug-hot"></i>
+        <h3>Gostou do projeto?</h3>
+        <p>
+          O DontFile é um projeto 100% gratuito e sem anúncios, mantido por mim no meu tempo livre.
+          <br>
+          Seu PIX ajuda a pagar os custos do servidor e (quem sabe) comprar um café para o dev!
+        </p>
+
+        <div class="pix-key-container">
+          <div id="qrcodeCanvasRoom" class="pix-qr-code"></div> <div class="pix-copia-cola">
+              <p>Ou use a chave (Copia e Cola):</p>
+              <div class="input-group">
+                  <input type="text" id="pixKeyInputRoom" value="00020126580014BR.GOV.BCB.PIX0136c020f7e1-bf43-417e-a3e5-30e97272b47b5204000053039865802BR5925Gabriel Cezar da Silveira6009SAO PAULO62140510Cu4J7QsPTq63044F82" readonly> <button id="copyPixBtnRoom">Copiar</button> </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
 </footer>

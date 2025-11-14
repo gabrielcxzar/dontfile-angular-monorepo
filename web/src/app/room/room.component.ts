@@ -2,7 +2,7 @@ import { Component, OnInit, OnDestroy } from '@angular/core';
 import { Router, RouterLink } from '@angular/router'; // Para ler a URL e para o link do logo
 import { HttpClient, HttpEventType, HttpHeaders } from '@angular/common/http'; // O coração da API
 import { CommonModule } from '@angular/common'; // Necessário para *ngFor, *ngIf
-
+declare var QRCode: any
 // 1. Interface: Define a "cara" de um arquivo (Boas práticas do TypeScript)
 export interface FileInfo {
   name: string;
@@ -26,7 +26,10 @@ export class RoomComponent implements OnInit, OnDestroy {
   public files: FileInfo[] = []; // Onde vamos guardar a lista de arquivos
   public isLoading: boolean = true;
   public uploadProgress: number = 0;
-  
+  public isPixModalVisible: boolean = false;
+
+  private isQrCodeScriptLoaded: boolean = false;
+  private qrCodeInstance: any;
   private refreshInterval: any;
 
   // 2. Injeta as ferramentas do Angular: Rota, Cliente HTTP
@@ -218,5 +221,91 @@ export class RoomComponent implements OnInit, OnDestroy {
     }
     // Retorna o HTML completo do ícone
     return `<i class="file-icon ${iconClass}"></i>`;
+  }
+  openPixModal(event: MouseEvent): void {
+    event.preventDefault();
+    this.isPixModalVisible = true;
+
+    setTimeout(() => {
+      if (!this.isQrCodeScriptLoaded && typeof QRCode !== 'undefined') {
+        this.generateQRCodeAndSetupClipboard();
+        this.isQrCodeScriptLoaded = true; // Marcamos como carregado
+      } else if (typeof QRCode === 'undefined') {
+        // Se o script ainda não carregou, tentamos carregar
+        this.loadQrCodeScript().then(() => {
+          this.isQrCodeScriptLoaded = true;
+          this.generateQRCodeAndSetupClipboard();
+        });
+      } else {
+        // Se já foi carregado e gerado, não faz nada
+      }
+    }, 0);
+  }
+
+  closePixModal(): void {
+    this.isPixModalVisible = false;
+  }
+
+  private loadQrCodeScript(): Promise<void> {
+    return new Promise((resolve, reject) => {
+      // Verifica se o script já não está na página
+      if (document.getElementById('qrcode-script')) {
+        resolve();
+        return;
+      }
+      const script = document.createElement('script');
+      script.id = 'qrcode-script';
+      script.src = 'https://cdn.rawgit.com/davidshimjs/qrcodejs/gh-pages/qrcode.min.js';
+      script.onload = () => resolve();
+      script.onerror = (error) => reject(error);
+      document.head.appendChild(script);
+    });
+  }
+
+  private generateQRCodeAndSetupClipboard(): void {
+    // USA OS IDs DA SALA (ROOM)
+    const qrCodeContainer = document.getElementById('qrcodeCanvasRoom'); 
+    const pixInput = document.getElementById('pixKeyInputRoom') as HTMLInputElement;
+
+    if (qrCodeContainer && pixInput && typeof QRCode !== 'undefined') {
+      const pixKey = pixInput.value;
+      if (pixKey) {
+        qrCodeContainer.innerHTML = ''; // Limpa o QR anterior
+        this.qrCodeInstance = new QRCode(qrCodeContainer, {
+          text: pixKey,
+          width: 190,
+          height: 190,
+          correctLevel: QRCode.CorrectLevel.M
+        });
+      }
+    }
+    this.setupClipboard(); // Configura o botão de copiar
+  }
+
+  setupClipboard(): void {
+    // USA OS IDs DA SALA (ROOM)
+    const copyBtn = document.getElementById('copyPixBtnRoom');
+    const pixInput = document.getElementById('pixKeyInputRoom') as HTMLInputElement;
+
+    if (copyBtn && pixInput) {
+      // Remove listener antigo para evitar duplicatas
+      const newCopyBtn = copyBtn.cloneNode(true);
+      copyBtn.parentNode?.replaceChild(newCopyBtn, copyBtn);
+
+      newCopyBtn.addEventListener('click', () => {
+        pixInput.select();
+        pixInput.setSelectionRange(0, 99999);
+        try {
+          navigator.clipboard.writeText(pixInput.value);
+          newCopyBtn.textContent = 'Copiado!';
+          setTimeout(() => {
+            newCopyBtn.textContent = 'Copiar';
+          }, 2000);
+        } catch (err) {
+          console.error('Falha ao copiar:', err);
+          alert('Falha ao copiar a chave.');
+        }
+      });
+    }
   }
 }
