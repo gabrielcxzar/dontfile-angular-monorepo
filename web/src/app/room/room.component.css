@@ -250,3 +250,17 @@
 .btn-support i {
     margin-right: 8px;
 }
+@media (max-width: 600px) {
+  .file-item {
+    flex-direction: column; /* Coloca os botões embaixo do nome */
+    align-items: flex-start; /* Alinha tudo à esquerda */
+    gap: 15px;
+  }
+  .file-actions {
+    width: 100%; /* Faz os botões ocuparem a largura toda */
+  }
+  .file-actions .btn {
+    flex-grow: 1; /* Faz os botões crescerem igualmente */
+    text-align: center;
+  }
+}

@@ -1,5 +1,5 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
-import { ActivatedRoute, RouterLink } from '@angular/router'; // Para ler a URL e para o link do logo
+import { Router, RouterLink } from '@angular/router'; // Para ler a URL e para o link do logo
 import { HttpClient, HttpEventType, HttpHeaders } from '@angular/common/http'; // O coração da API
 import { CommonModule } from '@angular/common'; // Necessário para *ngFor, *ngIf
 
@@ -31,32 +31,27 @@ export class RoomComponent implements OnInit, OnDestroy {
 
   // 2. Injeta as ferramentas do Angular: Rota, Cliente HTTP
   constructor(
-    private route: ActivatedRoute,
+    private route: Router,
     private http: HttpClient
   ) { }
 
   ngOnInit(): void {
-    // 3. Pega o nome da sala da URL (ex: /projeto-xyz)
-    this.route.paramMap.subscribe(params => {
-      this.roomName = params.get('roomName') || '';
-      
-      // Atualiza o <span id="roomName"> no HTML
-      const roomNameSpan = document.getElementById('roomName');
-      if (roomNameSpan) {
-        roomNameSpan.textContent = this.roomName;
-      }
-      
-      this.loadFiles();
-    });
+  // Pega a URL (ex: /gabriel/curso) e remove a primeira barra
+  this.roomName = this.route.url.slice(1);
 
-    // 4. Configura o "arrastar e soltar" (drag and drop)
-    this.setupDragAndDrop();
-
-    // 5. Atualiza a lista de arquivos a cada 5 segundos
-    this.refreshInterval = setInterval(() => {
-      this.loadFiles();
-    }, 5000);
+  // Atualiza o <span id="roomName"> no HTML
+  const roomNameSpan = document.getElementById('roomName');
+  if (roomNameSpan) {
+    roomNameSpan.textContent = this.roomName;
   }
+
+  this.loadFiles(); // O resto (loadFiles, setupDragAndDrop, etc.) continua igual
+  this.setupDragAndDrop();
+
+  this.refreshInterval = setInterval(() => {
+    this.loadFiles();
+  }, 5000);
+}
 
   ngOnDestroy(): void {
     // 6. Limpa o intervalo quando o usuário sai da sala (evita memory leak)

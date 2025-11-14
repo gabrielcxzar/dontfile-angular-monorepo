@@ -9,7 +9,7 @@ export const routes: Routes = [
     { path: '', component: HomeComponent },
 
     // 3. Rota para a Sala (ex: /sala-xyz)
-    { path: ':roomName', component: RoomComponent },
+    { path: '**', component: RoomComponent },
 
     // Opcional: Uma rota "catch-all" para páginas não encontradas
     { path: '**', redirectTo: '' }
