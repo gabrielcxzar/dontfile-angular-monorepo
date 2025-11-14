@@ -144,6 +144,23 @@ app.use((err, req, res, next) => {
   console.error(err.stack);
   res.status(500).json({ error: 'Ocorreu um erro interno no servidor' });
 });
+app.delete('/api/:room(*)/delete-all', (req, res) => {
+  const roomName = req.params.room;
+  const uploadPath = path.join(__dirname, 'uploads', roomName);
+
+  if (!fs.existsSync(uploadPath)) {
+    return res.status(404).json({ error: 'Sala não encontrada' });
+  }
+
+  // Deleta a pasta inteira da sala e seu conteúdo
+  fs.rm(uploadPath, { recursive: true, force: true }, (err) => {
+    if (err) {
+      console.error('Erro ao limpar a sala:', err);
+      return res.status(500).json({ error: 'Erro ao limpar a sala' });
+    }
+    res.json({ success: true, message: 'Sala limpa com sucesso' });
+  });
+})
 // Inicia o servidor
 app.listen(PORT, () => {
   console.log(`🚀 DontFile rodando em http://localhost:${PORT}`);

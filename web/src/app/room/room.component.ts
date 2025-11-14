@@ -62,6 +62,31 @@ export class RoomComponent implements OnInit, OnDestroy {
       clearInterval(this.refreshInterval);
     }
   }
+  copyRoomLink(): void {
+  const url = window.location.href;
+  navigator.clipboard.writeText(url).then(() => {
+    alert('Link da sala copiado!');
+  }).catch(err => {
+    console.error('Falha ao copiar link:', err);
+    alert('Falha ao copiar. Por favor, copie o link da barra de endereço.');
+  });
+}
+
+clearRoom(): void {
+  if (!confirm(`Tem certeza que deseja apagar TODOS os arquivos desta sala? Esta ação é irreversível.`)) {
+    return;
+  }
+
+  this.http.delete(`/api/${this.roomName}/delete-all`).subscribe({
+    next: () => {
+      this.loadFiles(); // Recarrega a lista (que agora estará vazia)
+    },
+    error: (err) => {
+      alert('❌ Erro ao limpar a sala.');
+      console.error(err);
+    }
+  });
+}
 
   // --- Funções Principais (A Lógica da API) ---
 

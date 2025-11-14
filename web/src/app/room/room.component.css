@@ -362,3 +362,31 @@
     flex-direction: column; /* Coloca os botões PIX/Suporte um em cima do outro */
   }
 }
+
+/* --- Estilos dos Novos Botões do Header --- */
+.room-header-actions {
+  display: flex;
+  gap: 10px;
+}
+
+.btn-icon {
+    background: none;
+    padding: 5px 10px;
+    font-size: 1rem; /* Garante que o ícone tenha um bom tamanho */
+}
+.btn-icon:hover {
+    background: #444;
+}
+
+.btn-delete-all {
+  background: #4a2525;
+  color: #ffbaba;
+  font-weight: 500;
+  padding: 8px 15px;
+}
+.btn-delete-all i {
+  margin-right: 5px;
+}
+.btn-delete-all:hover {
+  background: #612f2f;
+}

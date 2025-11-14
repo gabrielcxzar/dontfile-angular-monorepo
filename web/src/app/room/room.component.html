@@ -7,6 +7,15 @@
             <div class="room-name-display">
                 Sala: <span id="roomName"></span>
             </div>
+
+            <div class="room-header-actions">
+                <button class="btn btn-icon" (click)="copyRoomLink()" title="Copiar link da sala">
+                    <i class="fa-solid fa-link"></i>
+                </button>
+                <button class="btn btn-delete-all" (click)="clearRoom()">
+                    <i class="fa-solid fa-broom"></i> Limpar Sala
+                </button>
+            </div>
         </header>
 
         <div id="uploadArea" class="upload-area">
