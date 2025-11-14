@@ -38,10 +38,6 @@ app.get('/', (req, res) => {
 });
 // --- FIM DA MUDANÇA ---
 
-// Rota dinâmica para cada "sala"
-app.get('/:room(*)', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'index.html'));
-});
 
 // API: Listar arquivos... (sem mudanças)
 app.get('/api/:room(*)/files', (req, res) => {
@@ -123,6 +119,10 @@ app.delete('/api/:room(*)/delete/:filename', (req, res) => {
     
     res.json({ success: true, message: 'Arquivo deletado com sucesso' });
   });
+});
+// Rota dinâmica para cada "sala"
+app.get('/:room(*)', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
 // --- NOVO: Middleware de tratamento de erros ---
