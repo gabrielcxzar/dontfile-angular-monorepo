@@ -1,0 +1,9 @@
+# Ignorar TODAS as pastas node_modules (do /api e do /web)
+**/node_modules
+
+# Ignorar a pasta de build do Angular (ela é recriada sempre)
+/web/dist
+
+# Arquivos de log e sistema
+*.log
+.DS_Store
