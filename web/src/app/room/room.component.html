@@ -26,7 +26,11 @@
         </div>
 
         <div *ngIf="isUploading" class="progress-bar">
-            <div class="progress-bar-fill" [style.width.%]="uploadProgress"></div>
+            <div
+                class="progress-bar-fill"
+                [class.indeterminate]="isUploadIndeterminate"
+                [style.width.%]="isUploadIndeterminate ? 40 : uploadProgress">
+            </div>
         </div>
 
        <div id="filesList" class="files-list">

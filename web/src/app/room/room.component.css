@@ -78,6 +78,7 @@
     border-radius: 5px;
     margin: 20px 0;
     overflow: hidden;
+    position: relative;
 }
 
 .progress-bar-fill {
@@ -85,6 +86,17 @@
     width: 0%;
     background-color: #00C8FF;
     transition: width 0.1s linear;
+    position: relative;
+}
+
+.progress-bar-fill.indeterminate {
+    width: 40%;
+    animation: indeterminate-bar 1.2s infinite ease-in-out;
+}
+
+@keyframes indeterminate-bar {
+    0% { transform: translateX(-120%); }
+    100% { transform: translateX(250%); }
 }
 
 .files-list {

@@ -1,6 +1,6 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { Router, RouterLink } from '@angular/router'; // Para ler a URL e para o link do logo
-import { HttpClient, HttpEventType, HttpHeaders } from '@angular/common/http'; // O coração da API
+import { HttpClient, HttpEventType } from '@angular/common/http'; // O coração da API
 import { CommonModule } from '@angular/common'; // Necessário para *ngFor, *ngIf
 declare var QRCode: any
 // 1. Interface: Define a "cara" de um arquivo (Boas práticas do TypeScript)
@@ -27,6 +27,7 @@ export class RoomComponent implements OnInit, OnDestroy {
   public isLoading: boolean = true;
   public uploadProgress: number = 0;
   public isUploading: boolean = false;
+  public isUploadIndeterminate: boolean = false;
   public isPixModalVisible: boolean = false;
 
   private isQrCodeScriptLoaded: boolean = false;
@@ -129,6 +130,7 @@ clearRoom(): void {
       // Mostra a barra de progresso
       this.pendingUploads += 1;
       this.isUploading = true;
+      this.isUploadIndeterminate = false;
       this.uploadProgress = 0;
 
       // 8. O UPLOAD com HttpClient (substitui o XHR)
@@ -139,14 +141,21 @@ clearRoom(): void {
         next: (event) => {
           if (event.type === HttpEventType.UploadProgress) {
             // Atualiza a barra de progresso
-            const percent = Math.round((100 * event.loaded) / (event.total || 1));
-            this.uploadProgress = percent;
+            if (event.total) {
+              const percent = Math.round((100 * event.loaded) / event.total);
+              this.uploadProgress = percent;
+              this.isUploadIndeterminate = false;
+            } else {
+              // Alguns ambientes nÃ£o informam o total (chunked); use modo indeterminado
+              this.isUploadIndeterminate = true;
+            }
           } else if (event.type === HttpEventType.Response) {
             // Upload completo!
             this.loadFiles(); // Recarrega a lista
             this.pendingUploads = Math.max(0, this.pendingUploads - 1);
             if (this.pendingUploads === 0) {
               this.isUploading = false;
+              this.isUploadIndeterminate = false;
               this.uploadProgress = 0;
             }
           }
@@ -157,6 +166,7 @@ clearRoom(): void {
           this.pendingUploads = Math.max(0, this.pendingUploads - 1);
           if (this.pendingUploads === 0) {
             this.isUploading = false;
+            this.isUploadIndeterminate = false;
             this.uploadProgress = 0;
           }
         }
@@ -342,3 +352,4 @@ clearRoom(): void {
     }
   }
 }
+
