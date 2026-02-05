@@ -26,11 +26,13 @@ export class RoomComponent implements OnInit, OnDestroy {
   public files: FileInfo[] = []; // Onde vamos guardar a lista de arquivos
   public isLoading: boolean = true;
   public uploadProgress: number = 0;
+  public isUploading: boolean = false;
   public isPixModalVisible: boolean = false;
 
   private isQrCodeScriptLoaded: boolean = false;
   private qrCodeInstance: any;
   private refreshInterval: any;
+  private pendingUploads: number = 0;
 
   // 2. Injeta as ferramentas do Angular: Rota, Cliente HTTP
   constructor(
@@ -125,9 +127,8 @@ clearRoom(): void {
       formData.append('file', file);
 
       // Mostra a barra de progresso
-      const progressBar = document.getElementById('progressBar');
-      const progressBarFill = document.getElementById('progressBarFill');
-      if (progressBar) progressBar.style.display = 'block';
+      this.pendingUploads += 1;
+      this.isUploading = true;
       this.uploadProgress = 0;
 
       // 8. O UPLOAD com HttpClient (substitui o XHR)
@@ -140,17 +141,24 @@ clearRoom(): void {
             // Atualiza a barra de progresso
             const percent = Math.round((100 * event.loaded) / (event.total || 1));
             this.uploadProgress = percent;
-            if (progressBarFill) progressBarFill.style.width = percent + '%';
           } else if (event.type === HttpEventType.Response) {
             // Upload completo!
             this.loadFiles(); // Recarrega a lista
-            if (progressBar) progressBar.style.display = 'none';
+            this.pendingUploads = Math.max(0, this.pendingUploads - 1);
+            if (this.pendingUploads === 0) {
+              this.isUploading = false;
+              this.uploadProgress = 0;
+            }
           }
         },
         error: (err) => {
           alert('❌ Erro no upload: ' + file.name);
           console.error(err);
-          if (progressBar) progressBar.style.display = 'none';
+          this.pendingUploads = Math.max(0, this.pendingUploads - 1);
+          if (this.pendingUploads === 0) {
+            this.isUploading = false;
+            this.uploadProgress = 0;
+          }
         }
       });
     }

@@ -25,8 +25,8 @@
             <input type="file" id="fileInput" multiple hidden>
         </div>
 
-        <div id="progressBar" class="progress-bar" style="display: none;">
-            <div id="progressBarFill" class="progress-bar-fill"></div>
+        <div *ngIf="isUploading" class="progress-bar">
+            <div class="progress-bar-fill" [style.width.%]="uploadProgress"></div>
         </div>
 
        <div id="filesList" class="files-list">
