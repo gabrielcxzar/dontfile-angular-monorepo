@@ -140,8 +140,12 @@ clearRoom(): void {
         observe: 'events'
       }).pipe(
         finalize(() => {
-          this.isUploadIndeterminate = false;
-            this.uploadProgress = 100;
+          this.pendingUploads = Math.max(0, this.pendingUploads - 1);
+          if (this.pendingUploads === 0) {
+            this.isUploading = false;
+            this.isUploadIndeterminate = false;
+            this.uploadProgress = 0;
+          }
         })
       ).subscribe({
         next: (event) => {
@@ -152,7 +156,7 @@ clearRoom(): void {
               this.uploadProgress = percent;
               this.isUploadIndeterminate = false;
             } else {
-              // Alguns ambientes nÃ£o informam o total (chunked); use modo indeterminado
+              // Alguns ambientes nao informam o total (chunked); use modo indeterminado
               this.isUploadIndeterminate = true;
             }
           } else if (event.type === HttpEventType.Response) {
@@ -163,7 +167,7 @@ clearRoom(): void {
           }
         },
         error: (err) => {
-          alert('❌ Erro no upload: ' + file.name);
+          alert('? Erro no upload: ' + file.name);
           console.error(err);
         }
       });
