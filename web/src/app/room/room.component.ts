@@ -1,6 +1,7 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { Router, RouterLink } from '@angular/router'; // Para ler a URL e para o link do logo
-import { HttpClient, HttpEventType } from '@angular/common/http'; // O coração da API
+import { HttpClient, HttpEventType } from '@angular/common/http';
+import { finalize } from 'rxjs'; // O coração da API
 import { CommonModule } from '@angular/common'; // Necessário para *ngFor, *ngIf
 declare var QRCode: any
 // 1. Interface: Define a "cara" de um arquivo (Boas práticas do TypeScript)
@@ -137,7 +138,12 @@ clearRoom(): void {
       this.http.post(`/api/${this.roomName}/upload`, formData, {
         reportProgress: true,
         observe: 'events'
-      }).subscribe({
+      }).pipe(
+        finalize(() => {
+          this.isUploadIndeterminate = false;
+            this.uploadProgress = 100;
+        })
+      ).subscribe({
         next: (event) => {
           if (event.type === HttpEventType.UploadProgress) {
             // Atualiza a barra de progresso
@@ -152,23 +158,13 @@ clearRoom(): void {
           } else if (event.type === HttpEventType.Response) {
             // Upload completo!
             this.loadFiles(); // Recarrega a lista
-            this.pendingUploads = Math.max(0, this.pendingUploads - 1);
-            if (this.pendingUploads === 0) {
-              this.isUploading = false;
-              this.isUploadIndeterminate = false;
-              this.uploadProgress = 0;
-            }
+            this.isUploadIndeterminate = false;
+            this.uploadProgress = 100;
           }
         },
         error: (err) => {
           alert('❌ Erro no upload: ' + file.name);
           console.error(err);
-          this.pendingUploads = Math.max(0, this.pendingUploads - 1);
-          if (this.pendingUploads === 0) {
-            this.isUploading = false;
-            this.isUploadIndeterminate = false;
-            this.uploadProgress = 0;
-          }
         }
       });
     }
@@ -352,4 +348,12 @@ clearRoom(): void {
     }
   }
 }
+
+
+
+
+
+
+
+
 
