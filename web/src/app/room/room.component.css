@@ -188,6 +188,8 @@
 }
 .site-footer .footer-separator {
     margin: 0 5px;
+    pointer-events: none;
+    user-select: none;
 }
 .site-footer a {
     color: #00C8FF;
