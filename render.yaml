@@ -1,0 +1,13 @@
+services:
+  - type: web
+    name: dontfile
+    env: node
+    plan: free
+    rootDir: .
+    buildCommand: cd web && npm ci && npm run build:deploy && cd ../api && npm ci
+    startCommand: cd api && npm start
+    envVars:
+      - key: CANONICAL_DOMAIN
+        value: dontfile.com.br
+      - key: LEGACY_RENDER_DOMAIN
+        value: dontfile.onrender.com

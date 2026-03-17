@@ -2,7 +2,7 @@
 
 Um serviço de transferência de arquivos simples, rápido e anônimo, inspirado no DontPad. Crie uma sala, arraste seus arquivos e compartilhe o link.
 
-**Link do projeto ao vivo (Hospedado no Render):** [**https://dontfile.onrender.com/**](https://dontfile.onrender.com/)
+**Link do projeto ao vivo:** [**https://dontfile.com.br/**](https://dontfile.com.br/)
 
 
 
