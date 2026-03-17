@@ -5,6 +5,17 @@ const fs = require('fs');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
+const CANONICAL_DOMAIN = process.env.CANONICAL_DOMAIN || 'dontfile.com.br';
+const LEGACY_RENDER_DOMAIN = process.env.LEGACY_RENDER_DOMAIN || 'dontfile.onrender.com';
+
+// Redireciona o subdominio legado do Render para o dominio oficial.
+app.use((req, res, next) => {
+  const host = (req.headers.host || '').split(':')[0].toLowerCase();
+  if (host === LEGACY_RENDER_DOMAIN) {
+    return res.redirect(301, `https://${CANONICAL_DOMAIN}${req.originalUrl}`);
+  }
+  next();
+});
 
 // Configuração do Multer... (sem mudanças aqui)
 const storage = multer.diskStorage({
