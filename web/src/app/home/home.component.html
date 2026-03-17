@@ -12,7 +12,7 @@
       <p>Crie uma sala, envie seus arquivos e compartilhe o link. Só isso.</p>
       <div class="room-creator">
         <span>dontfile.onrender.com/</span>
-        <input type="text" #roomInput placeholder="nome-da-sala" autofocus (keypress.enter)="goToRoom(roomInput.value)">
+        <input type="text" #roomInput placeholder="nome-da-sala" autofocus (keydown.enter)="goToRoom(roomInput.value)">
         <button id="createRoomBtn" (click)="goToRoom(roomInput.value)">Criar ou Acessar</button>
       </div>
     </section>
@@ -60,6 +60,16 @@
       
     </div>
   </div>
+
+  <section *ngIf="isPrivacyNoticeVisible" class="privacy-notice" role="dialog" aria-live="polite" aria-label="Aviso de privacidade">
+    <p>
+      <strong>Aviso importante:</strong>
+      N&atilde;o envie dados pessoais sens&iacute;veis. Este servi&ccedil;o &eacute; p&uacute;blico, sem cadastro e sem garantia de guarda permanente.
+      Voc&ecirc; &eacute; respons&aacute;vel pelos arquivos enviados e deve manter seu pr&oacute;prio backup.
+      Os arquivos podem ser removidos sem aviso por limpeza, manuten&ccedil;&atilde;o ou a&ccedil;&otilde;es de usu&aacute;rios com acesso &agrave; sala.
+    </p>
+    <button type="button" class="privacy-notice-btn" (click)="acceptPrivacyNotice()">OK, entendi</button>
+  </section>
 
 </div>
 

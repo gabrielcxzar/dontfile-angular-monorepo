@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+﻿import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 
@@ -16,12 +16,15 @@ declare var QRCode: any;
 export class HomeComponent implements OnInit {
 
   public isPixModalVisible: boolean = false;
+  public isPrivacyNoticeVisible: boolean = false;
   private isQrCodeScriptLoaded: boolean = false; // Nova flag para controlar o script
-  private qrCodeInstance: any; // Para guardar a instância do QR Code
+  private qrCodeInstance: any; // Para guardar a instÃ¢ncia do QR Code
+  private readonly privacyNoticeStorageKey = 'dontfile_privacy_notice_ack_v1';
 
   constructor(private router: Router) { }
 
   ngOnInit(): void {
+    this.checkPrivacyNotice();
     this.setupRoomInput();
   }
 
@@ -38,7 +41,7 @@ export class HomeComponent implements OnInit {
           this.generateQRCodeAndSetupClipboard();
         });
       } else {
-        // Se o script já foi carregado, apenas gera o QR Code
+        // Se o script jÃ¡ foi carregado, apenas gera o QR Code
         this.generateQRCodeAndSetupClipboard();
       }
     }, 0);
@@ -48,11 +51,11 @@ export class HomeComponent implements OnInit {
     this.isPixModalVisible = false;
   }
 
-  // Novo método para carregar o script dinamicamente
+  // Novo mÃ©todo para carregar o script dinamicamente
   private loadQrCodeScript(): Promise<void> {
     return new Promise((resolve, reject) => {
       if (document.getElementById('qrcode-script')) {
-        resolve(); // Já carregado
+        resolve(); // JÃ¡ carregado
         return;
       }
 
@@ -65,7 +68,7 @@ export class HomeComponent implements OnInit {
     });
   }
 
-  // Novo método para gerar o QR Code e configurar o Copiar
+  // Novo mÃ©todo para gerar o QR Code e configurar o Copiar
   private generateQRCodeAndSetupClipboard(): void {
     const qrCodeContainer = document.getElementById('qrcodeCanvas');
     const pixInput = document.getElementById('pixKeyInput') as HTMLInputElement;
@@ -83,7 +86,7 @@ export class HomeComponent implements OnInit {
         });
       }
     }
-    this.setupClipboard(); // Garante que o botão de copiar seja configurado
+    this.setupClipboard(); // Garante que o botÃ£o de copiar seja configurado
   }
 
   setupClipboard(): void {
@@ -91,7 +94,7 @@ export class HomeComponent implements OnInit {
     const pixInput = document.getElementById('pixKeyInput') as HTMLInputElement;
 
     if (copyBtn && pixInput) {
-      // Remove o listener anterior para evitar múltiplos eventos
+      // Remove o listener anterior para evitar mÃºltiplos eventos
       const oldCopyBtn = copyBtn.cloneNode(true);
       copyBtn.parentNode?.replaceChild(oldCopyBtn, copyBtn);
       const newCopyBtn = document.getElementById('copyPixBtn') as HTMLButtonElement;
@@ -113,9 +116,25 @@ export class HomeComponent implements OnInit {
     }
   }
 
-  // 7. Lógica do Input da Sala (Vamos usar o "Jeito Angular" que sugerimos antes)
+  // 7. LÃ³gica do Input da Sala (Vamos usar o "Jeito Angular" que sugerimos antes)
   setupRoomInput(): void {
-    // Esta função agora pode ficar vazia, pois vamos usar (click) no HTML
+    // Esta funÃ§Ã£o agora pode ficar vazia, pois vamos usar (click) no HTML
+  }
+  private checkPrivacyNotice(): void {
+    try {
+      this.isPrivacyNoticeVisible = localStorage.getItem(this.privacyNoticeStorageKey) !== 'accepted';
+    } catch {
+      this.isPrivacyNoticeVisible = true;
+    }
+  }
+
+  acceptPrivacyNotice(): void {
+    this.isPrivacyNoticeVisible = false;
+    try {
+      localStorage.setItem(this.privacyNoticeStorageKey, 'accepted');
+    } catch {
+      // Ignora falhas de armazenamento para nao travar a experiencia.
+    }
   }
 
   goToRoom(roomValue: string): void {
@@ -130,7 +149,7 @@ export class HomeComponent implements OnInit {
       if (safeRoomName) {
         this.router.navigate([safeRoomName]);
       } else {
-        alert("Por favor, digite um nome válido.");
+        alert("Por favor, digite um nome vÃ¡lido.");
       }
     } else {
       alert("Por favor, digite um nome para a sala.");

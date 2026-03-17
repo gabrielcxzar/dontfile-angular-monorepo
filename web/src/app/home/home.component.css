@@ -1,4 +1,4 @@
-/* --- TELA 1: ESTILO DA HOMEPAGE --- */
+﻿/* --- TELA 1: ESTILO DA HOMEPAGE --- */
 
 #homeContainer {
     max-width: 800px;
@@ -276,7 +276,7 @@
     background: #612f2f;
 }
 
-/* --- ESTILO DO RODAPÉ (NOVO) --- */
+/* --- ESTILO DO RODAPÃ‰ (NOVO) --- */
 .site-footer {
     text-align: center;
     padding: 40px 20px 20px 20px;
@@ -295,7 +295,7 @@
 .site-footer a:hover {
     text-decoration: underline;
 }
-/* --- ESTILO DO PIX (ATUALIZAÇÃO) --- */
+/* --- ESTILO DO PIX (ATUALIZAÃ‡ÃƒO) --- */
 .pix-key-container {
     display: flex;
     flex-direction: column;
@@ -379,7 +379,7 @@
 }
 /* --- NOVO: Estilos do Modal --- */
 .pix-trigger {
-    /* Faz o link do rodapé ter a mesma cor azul */
+    /* Faz o link do rodapÃ© ter a mesma cor azul */
     color: #00C8FF;
     text-decoration: none;
     cursor: pointer;
@@ -412,14 +412,14 @@
     max-width: 500px; /* Limita o tamanho do modal */
 }
 
-/* O ícone do café */
+/* O Ã­cone do cafÃ© */
 .modal .fa-mug-hot {
     font-size: 2rem;
     color: #00C8FF;
     margin-bottom: 15px;
 }
 
-/* O "Porquê" da doação */
+/* O "PorquÃª" da doaÃ§Ã£o */
 .modal h3 {
     font-size: 1.5rem;
     color: white;
@@ -447,15 +447,66 @@
     color: white;
 }
 
+
+.privacy-notice {
+    position: fixed;
+    left: 16px;
+    right: 16px;
+    bottom: 16px;
+    max-width: 980px;
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    justify-content: space-between;
+    background: rgba(22, 22, 22, 0.95);
+    border: 1px solid #333;
+    border-radius: 12px;
+    padding: 14px 16px;
+    z-index: 90;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.35);
+    backdrop-filter: blur(6px);
+}
+
+.privacy-notice p {
+    margin: 0;
+    color: #b7b7b7;
+    font-size: 0.9rem;
+    line-height: 1.45;
+}
+
+.privacy-notice p strong {
+    color: #fff;
+}
+
+.privacy-notice-btn {
+    background: #00C8FF;
+    color: #121212;
+    font-weight: 700;
+    white-space: nowrap;
+}
+
+.privacy-notice-btn:hover {
+    background: #00aadd;
+    transform: translateY(-1px);
+}
 @media (max-width: 600px) {
   .hero h2 {
-    font-size: 1.8rem; /* Diminui o título */
+    font-size: 1.8rem; /* Diminui o tÃ­tulo */
   }
   .room-creator {
-    flex-direction: column; /* Coloca o input em cima do botão */
+    flex-direction: column; /* Coloca o input em cima do botÃ£o */
     gap: 15px;
   }
   .home-links {
-    flex-direction: column; /* Coloca os botões PIX/Suporte um em cima do outro */
+    flex-direction: column; /* Coloca os botÃµes PIX/Suporte um em cima do outro */
+  }
+  .privacy-notice {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  .privacy-notice-btn {
+    width: 100%;
   }
 }
+
