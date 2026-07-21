@@ -1,86 +1,109 @@
 # DontFile
 
-Um serviço de transferência de arquivos simples, rápido e anônimo, inspirado no DontPad. Crie uma sala, arraste seus arquivos e compartilhe o link.
+Um serviço de transferência de arquivos simples, rápido, efêmero e anônimo, inspirado no DontPad. Crie uma sala, arraste seus arquivos e compartilhe o link.
 
-**Link do projeto ao vivo:** [**https://dontfile.com.br/**](https://dontfile.com.br/)
-
-
+**Link do projeto ao vivo:** [https://dontfile.com.br/](https://dontfile.com.br/)
 
 ---
 
 ## Sobre o Projeto
 
-O objetivo deste projeto era criar uma ferramenta de transferência de arquivos sem atrito: sem login, sem cadastro, sem anúncios. O usuário simplesmente acessa o site, digita o nome de uma sala (que pode ser um subdiretório como `/projeto/cliente-final`) e pode começar a fazer uploads.
+O objetivo do **DontFile** é oferecer uma ferramenta de transferência de arquivos sem atrito: sem login, sem cadastro e sem anúncios. O usuário acessa o site, digita o nome de uma sala (que pode ser um subdiretório como `/projeto/cliente-final`) e pode começar a fazer uploads imediatamente.
 
-### ⚠️ Aviso de Armazenamento Efêmero
-
-Este projeto foi desenvolvido para ser uma solução de **transferência temporária** e está hospedado no plano gratuito do Render. O sistema de arquivos da VM é **efêmero**.
-
-Isso significa que **todos os arquivos enviados são permanentemente excluídos** sempre que o serviço reinicia (o que acontece em cada novo deploy ou após 15 minutos de inatividade do servidor).
+> [!WARNING]
+> **Aviso de Armazenamento Efêmero:**
+> Este projeto foi desenvolvido para transferência temporária e está hospedado no plano gratuito do Render. O sistema de arquivos da VM é **efêmero**. Todos os arquivos enviados são excluídos quando o serviço reinicia (a cada novo deploy ou após 15 minutos de inatividade do servidor).
 
 ---
 
-## Arquitetura Técnica (Monorepo)
+## Organização do Projeto
 
-Este repositório é um **monorepo** que contém duas aplicações separadas: o backend da API e o frontend em Angular.
+O repositório segue o Padrão Corporativo de Desenvolvimento Assistido por Inteligência Artificial, estruturado em três camadas bem definidas:
 
-### `/api` (O Backend)
-
-* **Tecnologia:** Node.js, Express.js
-* **Função:** Serve a API RESTful e os arquivos estáticos.
-* **Rotas Principais:**
-    * `POST /api/:room(*)/upload`: Recebe os arquivos via `multer`.
-    * `GET /api/:room(*)/files`: Lista os arquivos de uma sala.
-    * `GET /api/:room(*)/download/:filename`: Faz o download de um arquivo.
-    * `DELETE /api/:room(*)/delete/:filename`: Deleta um arquivo.
-    * `DELETE /api/:room(*)/delete-all`: Limpa uma sala inteira.
-* **Armazenamento:** Os arquivos são salvos diretamente no sistema de arquivos do servidor (`/uploads`) usando o módulo `fs` do Node.
-
-### `/web` (O Frontend)
-
-* **Tecnologia:** Angular 17+ (Standalone)
-* **Função:** É a SPA (Single Page Application) que o usuário vê.
-* **Roteamento:**
-    * `/` (Homepage): Renderiza o `HomeComponent` (landing page, criação de sala, modal do PIX).
-    * `/**` (Catch-all): Renderiza o `RoomComponent`, que lê a URL para identificar o nome da sala (ex: `/minha/sala/secreta`).
-* **Comunicação:** Usa o `HttpClient` do Angular para consumir a API REST do backend (Node.js).
+- **`docs/` (Documentação Técnica e Arquitetural):** Contém as especificações formais de endpoints REST, diagramas de arquitetura, decisões técnicas (ADRs), padrões de código, snippets e o roadmap.
+- **`.ai/` (Governança e Operações de IA):** Atua como a camada "System Prompt Layer" do repositório, contendo os guias de onboarding agnósticos, instruções para agentes de IA, convenções operacionais, governança e conhecimento permanente do projeto.
+- **`.meta/` (Artefatos Analíticos de Auditoria):** Concentra os relatórios de auditorias automatizadas, inventário de ativos, índice completo de arquivos, grafos de dependência e métricas do workspace.
 
 ---
 
 ## Dependências e Tecnologias
 
-### Backend (`/api/package.json`)
-* **`express`**: O framework do servidor web para criar as rotas da API.
-* **`multer`**: Middleware para lidar com o upload de arquivos (`multipart/form-data`).
-
-### Frontend (`/web/package.json`)
-* **`@angular/core`**: O núcleo do framework Angular.
-* **`@angular/common`**: Fornece diretivas como `*ngIf` e `*ngFor` (usadas para listar os arquivos e mostrar/esconder o modal).
-* **`@angular/common/http` (`HttpClient`)**: O módulo usado para fazer requisições `GET`, `POST`, e `DELETE` para o backend.
-* **`@angular/router`**: Gerencia o roteamento do lado do cliente (entre a Homepage e a Sala).
-
-### Build (Desenvolvimento)
-* **`@angular/cli`**: Ferramenta de linha de comando para rodar (`ng serve`) e compilar (`ng build`) a aplicação Angular.
-* **`rimraf`** & **`ncp`**: Scripts de utilidade (adicionados ao `package.json` do frontend) para automatizar o processo de build, limpando a pasta `api/public` e copiando os arquivos compilados do Angular para lá.
+- **Backend:** Node.js (>= 18.0.0), Express.js (v4.18.2), Multer (v1.4.5-lts.1).
+- **Frontend:** Angular 19 (v19.2.0), TypeScript (v5.7.2), RxJS (v7.8.0), FontAwesome 6.5.1, Google Fonts (Poppins).
+- **Build / Deploy:** Angular CLI 19, `rimraf`, `ncp`, Render PaaS (`render.yaml`).
 
 ---
 
 ## Como Rodar Localmente
 
-Para rodar o ambiente de desenvolvimento, você precisará de **dois terminais** abertos.
+Para rodar o ambiente de desenvolvimento local, você precisará de dois terminais:
 
-**1. Iniciar o Backend (API):**
+### 1. Iniciar o Backend (API)
 ```bash
-# Terminal 1
 cd api
 npm install
 npm run dev
 # A API estará rodando em http://localhost:3000
-# Terminal 2
+```
+
+### 2. Iniciar o Frontend (Angular)
+```bash
 cd web
 npm install
-ng serve --open
-# O app Angular abrirá em http://localhost:4200 e consumirá a API do localhost:3000
-npm install
-npm run dev
-# A API estará rodando em http://localhost:3000
+npm start
+# O app Angular abrirá em http://localhost:4200 e fará proxy das chamadas /api para o localhost:3000
+```
+
+---
+
+## Documentação
+
+Toda a base de conhecimento do projeto está estruturada em links navegáveis e interconectados:
+
+### Entradas Principais e logs (`/`)
+- [README.md](README.md) — Apresentação principal para humanos (este arquivo).
+- [CHANGELOG.md](CHANGELOG.md) — Histórico de versões do software.
+- [CHANGELOG_AI.md](CHANGELOG_AI.md) — Log auditável de alterações realizadas por IAs.
+
+### Governança e Operações de IA (`.ai/`)
+- [Guia de Inicialização e Onboarding](.ai/BOOTSTRAP_PROJECT.md)
+- [Diretrizes para Agentes de IA](.ai/AGENTS.md)
+- [Manual de Convenções Operacionais de IAs](.ai/AI_CONVENTIONS.md)
+- [Políticas de Governança do Repositório](.ai/GOVERNANCE.md)
+- [Contexto Funcional e Mapa do Repositório](.ai/CONTEXT.md)
+- [Memória Técnica Permanente](.ai/MEMORY.md)
+
+### Arquitetura e Especificações Técnicas (`docs/`)
+- [Arquitetura do Sistema e Diagramas](docs/ARCHITECTURE.md)
+- [Especificação Técnica e Contratos de API](docs/SPEC.md)
+- [Roadmap e Débitos Técnicos](docs/ROADMAP.md)
+- [Registro de Decisões Arquiteturais (ADRs)](docs/DECISIONS.md)
+- [Padrões de Código e Design](docs/PATTERNS.md)
+- [Exemplos de Chamadas cURL e Snippets](docs/EXAMPLES.md)
+
+### Artefatos Analíticos e Auditorias (`.meta/`)
+- [Relatório de Auditoria Técnica Inicial](.meta/AUDIT.md)
+- [Inventário Completo de Módulos e Componentes](.meta/INVENTORY.md)
+- [Índice Geral de Arquivos do Repositório](.meta/FILE_INDEX.md)
+- [Grafo de Dependências de Runtime e Pacotes](.meta/DEPENDENCY_GRAPH.md)
+- [Métricas de Código e Linhas por Módulo](.meta/METRICS.md)
+- [Análise de Acoplamento do Monorepo](.meta/WORKSPACE_ANALYSIS.md)
+
+---
+
+## Confidence
+
+### Alta
+- Comandos de instalação, estrutura corporativa e especificações validadas no código-fonte e diretórios do monorepo.
+
+### Média
+- Nenhuma.
+
+### Baixa
+- Nenhuma.
+
+---
+
+## Validação Humana Necessária
+
+- Nenhuma.
