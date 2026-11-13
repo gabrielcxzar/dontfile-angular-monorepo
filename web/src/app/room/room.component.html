@@ -1,74 +1,170 @@
 <div id="roomContainer">
-        <header class="room-header">
-            <a routerLink="/" class="logo">
-                <img src="/favicon.svg" alt="DontFile Logo">
-                <h1>DontFile</h1>
-            </a>
-            <div class="room-name-display">
-                Sala: <span id="roomName"></span>
-            </div>
+  <header class="room-header">
+    <a routerLink="/" class="logo">
+      <img src="/favicon.svg" alt="DontFile Logo">
+      <h1>DontFile</h1>
+    </a>
 
-            <div class="room-header-actions">
-                <button class="btn btn-icon" (click)="copyRoomLink()" title="Copiar link da sala">
-                    <i class="fa-solid fa-link"></i>
-                </button>
-                <button class="btn btn-delete-all" (click)="clearRoom()">
-                    <i class="fa-solid fa-broom"></i> Limpar Sala
-                </button>
-            </div>
-        </header>
+    <div class="room-name-display">
+      Sala: <span id="roomName">{{ roomName }}</span>
+      <span *ngIf="isPrivateRoom" class="private-badge" title="Sala protegida por senha">
+        <i class="fa-solid fa-lock"></i> Privada
+      </span>
+    </div>
 
-        <div id="uploadArea" class="upload-area">
-            <i class="fa-solid fa-cloud-arrow-up"></i>
-            <p>Arraste e solte arquivos aqui ou clique para selecionar</p>
-            <span>Tamanho máximo: 100MB</span>
-            <input type="file" id="fileInput" multiple hidden>
+    <div class="room-header-actions">
+      <button
+        *ngIf="!isPrivateRoom && !isRoomLocked && !isLoading && files.length === 0"
+        class="btn btn-private"
+        (click)="openLockModal()"
+        title="Definir senha para esta sala vazia">
+        <i class="fa-solid fa-lock"></i> Tornar privada
+      </button>
+
+      <button
+        *ngIf="isPrivateRoom && !isRoomLocked"
+        class="btn btn-icon"
+        (click)="lockCurrentTab()"
+        title="Bloquear acesso nesta aba">
+        <i class="fa-solid fa-user-lock"></i>
+      </button>
+
+      <button class="btn btn-icon" (click)="copyRoomLink()" title="Copiar link da sala">
+        <i class="fa-solid fa-link"></i>
+      </button>
+
+      <button *ngIf="!isRoomLocked" class="btn btn-delete-all" (click)="clearRoom()">
+        <i class="fa-solid fa-broom"></i> Limpar Sala
+      </button>
+    </div>
+  </header>
+
+  <section *ngIf="isRoomLocked" class="lock-gate">
+    <div class="lock-gate-card">
+      <i class="fa-solid fa-lock lock-gate-icon"></i>
+      <h2>Sala Privada</h2>
+      <p>Esta sala está protegida por senha. Informe a senha para visualizar e enviar arquivos.</p>
+
+      <form class="lock-gate-form" (ngSubmit)="submitUnlockRoom()">
+        <input
+          type="password"
+          name="unlockPassword"
+          [(ngModel)]="unlockPassword"
+          placeholder="Digite a senha da sala"
+          autocomplete="current-password"
+          autofocus>
+        <button type="submit" class="btn btn-primary" [disabled]="isUnlocking">
+          {{ isUnlocking ? 'Verificando...' : 'Desbloquear' }}
+        </button>
+      </form>
+
+      <p *ngIf="unlockError" class="form-error">{{ unlockError }}</p>
+    </div>
+  </section>
+
+  <ng-container *ngIf="!isRoomLocked">
+    <div
+      id="uploadArea"
+      class="upload-area"
+      [class.dragging]="isDragging"
+      (click)="fileInput.click()"
+      (dragover)="onDragOver($event)"
+      (dragleave)="onDragLeave()"
+      (drop)="onDrop($event, fileInput)">
+      <i class="fa-solid fa-cloud-arrow-up"></i>
+      <p>Arraste e solte arquivos aqui ou clique para selecionar</p>
+      <span>Tamanho máximo: 100MB</span>
+      <input
+        #fileInput
+        type="file"
+        id="fileInput"
+        multiple
+        hidden
+        (change)="onFileSelected($event, fileInput)">
+    </div>
+
+    <div *ngIf="isUploading" class="progress-bar">
+      <div
+        class="progress-bar-fill"
+        [class.indeterminate]="isUploadIndeterminate"
+        [style.width.%]="isUploadIndeterminate ? 40 : uploadProgress">
+      </div>
+    </div>
+
+    <div id="filesList" class="files-list">
+      <div *ngIf="files.length === 0 && !isLoading" class="empty-state">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"></path>
+          <polyline points="13 2 13 9 20 9"></polyline>
+        </svg>
+        <p>Nenhum arquivo nesta sala ainda</p>
+        <p style="margin-top: 5px; color: #888;">Faça upload do primeiro arquivo!</p>
+      </div>
+
+      <div *ngFor="let file of files" class="file-item">
+        <div class="file-info">
+          <div [innerHTML]="getFileIconHTML(file.name)"></div>
+
+          <div class="file-details">
+            <div class="file-name">{{ file.name }}</div>
+            <div class="file-meta">
+              {{ formatBytes(file.size) }} • {{ formatDate(file.uploadDate) }}
+            </div>
+          </div>
         </div>
 
-        <div *ngIf="isUploading" class="progress-bar">
-            <div
-                class="progress-bar-fill"
-                [class.indeterminate]="isUploadIndeterminate"
-                [style.width.%]="isUploadIndeterminate ? 40 : uploadProgress">
-            </div>
-        </div>
-
-       <div id="filesList" class="files-list">
-  
-  <div *ngIf="files.length === 0 && !isLoading" class="empty-state">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-        <path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"></path>
-        <polyline points="13 2 13 9 20 9"></polyline>
-    </svg>
-    <p>Nenhum arquivo nesta sala ainda</p>
-    <p style="margin-top: 5px; color: #888;">Faça upload do primeiro arquivo!</p>
-  </div>
-
-  <div *ngFor="let file of files" class="file-item">
-    <div class-="file-info">
-      <div [innerHTML]="getFileIconHTML(file.name)"></div>
-      
-      <div class="file-details">
-        <div class="file-name">{{ file.name }}</div>
-        <div class="file-meta">
-          {{ formatBytes(file.size) }} • {{ formatDate(file.uploadDate) }}
+        <div class="file-actions">
+          <button class="btn" (click)="downloadFile(file.name)">
+            <i class="fa-solid fa-download"></i> Baixar
+          </button>
+          <button class="btn btn-delete" (click)="deleteFile(file.name)">
+            <i class="fa-solid fa-trash"></i> Deletar
+          </button>
         </div>
       </div>
     </div>
-    
-    <div class="file-actions">
-      <button class="btn" (click)="downloadFile(file.name)">
-        <i class="fa-solid fa-download"></i> Baixar
-      </button>
-      <button class="btn btn-delete" (click)="deleteFile(file.name)">
-        <i class="fa-solid fa-trash"></i> Deletar
-      </button>
+  </ng-container>
+
+  <div *ngIf="isLockModalVisible" class="modal-backdrop" (click)="closeLockModal()">
+    <div class="modal lock-modal" (click)="$event.stopPropagation()">
+      <button class="modal-close" type="button" (click)="closeLockModal()">&times;</button>
+
+      <i class="fa-solid fa-lock lock-modal-icon"></i>
+      <h3>Tornar sala privada</h3>
+      <p>
+        Defina uma senha única para proteger esta sala. Apenas quem tiver a senha poderá listar,
+        enviar ou baixar arquivos.
+      </p>
+
+      <form class="lock-modal-form" (ngSubmit)="submitLockRoom()">
+        <input
+          type="password"
+          name="lockPassword"
+          [(ngModel)]="lockPassword"
+          placeholder="Senha (mínimo 4 caracteres)"
+          autocomplete="new-password">
+        <input
+          type="password"
+          name="lockPasswordConfirm"
+          [(ngModel)]="lockPasswordConfirm"
+          placeholder="Confirme a senha"
+          autocomplete="new-password">
+
+        <p *ngIf="lockError" class="form-error">{{ lockError }}</p>
+
+        <div class="lock-modal-actions">
+          <button type="button" class="btn" (click)="closeLockModal()" [disabled]="isLocking">
+            Cancelar
+          </button>
+          <button type="submit" class="btn btn-primary" [disabled]="isLocking">
+            {{ isLocking ? 'Salvando...' : 'Proteger Sala' }}
+          </button>
+        </div>
+      </form>
     </div>
   </div>
 
-</div>
-
-<footer class="site-footer">
+  <footer class="site-footer">
     Feito com <i class="fa-solid fa-heart" style="color: #ff6b6b;"></i> por Gabriel Cézar
     <span class="footer-separator">|</span>
     Inspirado no <a href="https://dontpad.com" target="_blank" rel="noopener noreferrer">dontpad.com</a>
@@ -76,7 +172,6 @@
     <a href="#" class="pix-trigger" (click)="openPixModal($event)">Apoie este projeto (PIX)</a>
     <div *ngIf="isPixModalVisible" class="modal-backdrop" (click)="closePixModal()">
       <div class="modal" (click)="$event.stopPropagation()">
-
         <button class="modal-close" (click)="closePixModal()">&times;</button>
 
         <i class="fa-solid fa-mug-hot"></i>
@@ -88,13 +183,20 @@
         </p>
 
         <div class="pix-key-container">
-          <div id="qrcodeCanvasRoom" class="pix-qr-code"></div> <div class="pix-copia-cola">
-              <p>Ou use a chave (Copia e Cola):</p>
-              <div class="input-group">
-                  <input type="text" id="pixKeyInputRoom" value="00020126580014BR.GOV.BCB.PIX0136c020f7e1-bf43-417e-a3e5-30e97272b47b5204000053039865802BR5925Gabriel Cezar da Silveira6009SAO PAULO62140510Cu4J7QsPTq63044F82" readonly> <button id="copyPixBtnRoom">Copiar</button> </div>
+          <div id="qrcodeCanvasRoom" class="pix-qr-code"></div>
+          <div class="pix-copia-cola">
+            <p>Ou use a chave (Copia e Cola):</p>
+            <div class="input-group">
+              <input
+                type="text"
+                id="pixKeyInputRoom"
+                value="00020126580014BR.GOV.BCB.PIX0136c020f7e1-bf43-417e-a3e5-30e97272b47b5204000053039865802BR5925Gabriel Cezar da Silveira6009SAO PAULO62140510Cu4J7QsPTq63044F82"
+                readonly>
+              <button id="copyPixBtnRoom">Copiar</button>
+            </div>
           </div>
         </div>
-
       </div>
     </div>
-</footer>
+  </footer>
+</div>

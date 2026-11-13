@@ -88,3 +88,22 @@ Este documento registra de forma auditável e cronológica todas as alterações
 - **Impacto:** Repositório padronizado, de facilidade crítica de leitura por qualquer IA ou humano, sem redundâncias ou links quebrados.
 - **Riscos:** Nenhum (arquivos de documentação perfeitamente isolados das regras de negócio em `/api` e `/web`).
 - **Necessita Validação Humana?:** Não.
+
+---
+
+## [2026-11-13] — Implementação de Salas Privadas Protegidas por Senha
+
+- **Agente:** Antigravity (Google DeepMind)
+- **Modelo:** Gemini 4 Hydrogen
+- **Objetivo:** Permitir salas privadas protegidas por senha única definida dentro de salas vazias, além de corrigir sanitização contra Path Traversal na API.
+- **Arquivos Modificados / Criados:**
+  - `specs/001-private-rooms/` (`spec.md`, `plan.md`, `research.md`, `data-model.md`, `contracts/private-rooms-api.md`, `quickstart.md`, `tasks.md`)
+  - `api/server.js`, `api/package.json`, `api/.gitignore`, `api/test/server.test.js`
+  - `web/src/styles.css`, `web/src/app/services/room-auth.service.ts`, `web/src/app/services/room-auth.service.spec.ts`
+  - `web/src/app/room/room.component.ts`, `web/src/app/room/room.component.html`, `web/src/app/room/room.component.css`, `web/src/app/room/room.component.spec.ts`
+  - `docs/SPEC.md`, `docs/ARCHITECTURE.md`, `render.yaml`, `CHANGELOG_AI.md`
+- **Resumo Técnico:** Armazenamento isolado de hashes `scrypt` em `api/room-meta/`, tokens HMAC-SHA256 stateless por sala, download via ticket temporário assinado, rate limit no `/unlock`, sanitização de caminhos contra Path Traversal, e interface Angular na sala para definir senha (apenas quando vazia) e desbloquear salas privadas.
+- **Motivação:** Atendimento à solicitação de criação de salas privadas seguindo o fluxo SDD definido em `AGENTS.md`.
+- **Impacto:** Salas públicas permanecem inalteradas; salas privadas passam a exigir senha e token válido em todas as rotas de API.
+- **Riscos:** Como o armazenamento no Render Free Tier é efêmero, os arquivos e os metadados de bloqueio em `api/room-meta/` expiram juntos quando a instância reinicia.
+- **Necessita Validação Humana?:** Não.

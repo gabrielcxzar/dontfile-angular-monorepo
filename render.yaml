@@ -11,3 +11,5 @@ services:
         value: dontfile.com.br
       - key: LEGACY_RENDER_DOMAIN
         value: dontfile.onrender.com
+      - key: ROOM_AUTH_SECRET
+        generateValue: true

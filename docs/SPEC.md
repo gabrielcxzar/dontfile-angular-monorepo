@@ -15,6 +15,8 @@ Este documento contém os requisitos funcionais, não funcionais e a especifica�
 - **RF-07 (Redirecionamento de Domínio Legado):** O backend deve redirecionar via HTTP 301 qualquer requisição vinda do domínio legado `LEGACY_RENDER_DOMAIN` para `CANONICAL_DOMAIN`.
 - **RF-08 (Modal PIX & Apoio):** O frontend deve exibir um modal com chave PIX e QR Code para apoio voluntário ao projeto.
 - **RF-09 (Aviso de Privacidade):** O frontend deve exibir um banner de aviso de privacidade na primeira visita e armazenar o aceite no `localStorage` sob a chave `dontfile_privacy_notice_ack_v1`.
+- **RF-10 (Salas Privadas com Senha Única):** O sistema deve permitir definir uma senha única dentro de uma sala vazia (`POST /api/:room(*)/lock`), exigindo token HMAC válido (`POST /api/:room(*)/unlock` ou `Authorization: Bearer <token>`) e ticket temporário para download (`POST /api/:room(*)/download-ticket/:filename`) em salas protegidas.
+- **RF-11 (Proteção contra Path Traversal):** O backend deve validar e normalizar nomes de salas e arquivos para impedir navegação de diretório (`..`, `\`, caracteres de controle).
 
 ---
 
@@ -109,16 +111,57 @@ Este documento contém os requisitos funcionais, não funcionais e a especifica�
 
 ### 3.5. Limpar Sala Inteira
 - **Rota:** `DELETE /api/:room(*)/delete-all`
-- **Descrição:** Remove recursivamente a pasta da sala e todos os seus arquivos.
+- **Descrição:** Remove os arquivos da sala (preservando eventuais sub-salas) e o registro de senha privada caso exista. Em salas privadas, exige `Authorization: Bearer <token>`.
 - **Respostas:**
   - `200 OK`:
     ```json
     { "success": true, "message": "Sala limpa com sucesso" }
     ```
+  - `401 Unauthorized`: Sala privada sem token válido.
   - `404 Not Found`:
     ```json
     { "error": "Sala não encontrada" }
     ```
+
+---
+
+### 3.6. Consultar Acesso da Sala
+- **Rota:** `GET /api/:room(*)/access`
+- **Descrição:** Retorna se a sala é privada e se o token enviado no header `Authorization` é válido.
+- **Respostas:**
+  - `200 OK`: `{ "isPrivate": boolean, "unlocked": boolean }`
+  - `400 Bad Request`: Nome de sala inválido.
+
+---
+
+### 3.7. Tornar Sala Vazia Privada
+- **Rota:** `POST /api/:room(*)/lock`
+- **Corpo da Requisição:** `{ "password": "string" }` (4 a 128 caracteres)
+- **Respostas:**
+  - `201 Created`: `{ "success": true, "token": "string", "expiresAt": number }`
+  - `400 Bad Request`: Senha ou nome de sala inválido.
+  - `409 Conflict`: Sala já é privada ou não está vazia.
+
+---
+
+### 3.8. Desbloquear Sala Privada
+- **Rota:** `POST /api/:room(*)/unlock`
+- **Corpo da Requisição:** `{ "password": "string" }`
+- **Respostas:**
+  - `200 OK`: `{ "success": true, "token": "string", "expiresAt": number }`
+  - `400 Bad Request`: Sala não é privada ou senha ausente.
+  - `401 Unauthorized`: Senha incorreta.
+  - `429 Too Many Requests`: Excesso de tentativas incorretas.
+
+---
+
+### 3.9. Emitir Ticket Temporário de Download
+- **Rota:** `POST /api/:room(*)/download-ticket/:filename`
+- **Descrição:** Emite um ticket de curta duração (60s) para download direto via navegador (`GET /api/:room(*)/download/:filename?ticket=...`) em salas privadas.
+- **Respostas:**
+  - `200 OK`: `{ "ticket": "string", "expiresAt": number }`
+  - `401 Unauthorized`: Sala privada sem token válido.
+  - `404 Not Found`: Arquivo não encontrado.
 
 ---
 

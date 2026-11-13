@@ -86,6 +86,7 @@ dontfile-angular-monorepo/
 │   ├── server.js             # Ponto de entrada da API e servidor HTTP
 │   ├── package.json          # Dependências do backend
 │   ├── uploads/              # Diretório efêmero de armazenamento
+│   ├── room-meta/            # Metadados efêmeros de salas privadas (hash scrypt)
 │   └── public/               # Build compilado do frontend Angular
 └── web/                      # Aplicação Frontend (Angular 19)
     ├── angular.json          # Configuração do Angular CLI
@@ -96,6 +97,7 @@ dontfile-angular-monorepo/
         ├── styles.css        # Estilos globais
         └── app/
             ├── app.routes.ts # Definição de rotas da SPA
+            ├── services/     # Serviços compartilhados (ex: RoomAuthService)
             ├── home/         # Componente da Landing Page
             └── room/         # Componente da Sala de Transferência
 ```
